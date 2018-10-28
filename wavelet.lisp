@@ -29,8 +29,9 @@
                               (destructuring-bind (varname type idx &optional fallback) vardef
                                 (declare (type (member :odd :even) type)
                                          (type integer idx))
-                                (let ((idx2% `(+ ,i ,(if (eq type :even) '0 `(ash ,skip -1))
-                                                 (* ,idx ,skip))))
+                                (let ((idx2% `(the fixnum
+                                                   (+ ,i ,(if (eq type :even) '0 `(ash ,skip -1))
+                                                      (* ,idx ,skip)))))
                                   `(,varname ,(cond
                                                 ((< idx 0) `(let ((,idx2 ,idx2%))
                                                               (if (< ,idx2 ,start) ,fallback (aref ,array ,idx2))))
