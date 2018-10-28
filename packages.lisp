@@ -6,10 +6,25 @@
            #:wavelet-inverse-w/recopy))
 
 (defpackage wavelet-audio
-  (:use #:cl #:wavelet-transform)
+  (:use #:cl #:wavelet-transform #:trivial-bit-streams)
   (:export #:encode-wavelet-audio
            #:decode-wavelet-audio
-           #:play-wavelet-audio
+
+           #:wavelet-audio-block
+           #:encode-block
+           #:write-block
+           #:decode-block
+           #:read-block
+
+           #:wavelet-audio-streaminfo
+           #:streaminfo-version
+           #:streaminfo-samplerate
+           #:streaminfo-bps
+           #:streaminfo-channels
+           #:streaminfo-samples
+           #:streaminfo-block-size
 
            #:wavelet-audio-error
-           #:wavelet-audio-broken-header))
+           #:wavelet-audio-warning
+           #:wavelet-audio-frame-error
+           #:wavelet-audio-unknown-metadata))
