@@ -27,4 +27,8 @@
            #:wavelet-audio-error
            #:wavelet-audio-warning
            #:wavelet-audio-frame-error
-           #:wavelet-audio-unknown-metadata))
+           #:wavelet-audio-unknown-metadata
+
+           #:*block-size*
+           #:*min-rice-parameter*
+           #:*max-rice-parameter*))

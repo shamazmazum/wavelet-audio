@@ -2,9 +2,11 @@
 
 (declaim (type (ub 16) *block-size*))
 (defparameter *block-size* 1024)
-(defparameter +current-version+ 1)
-(defparameter +initial-version+ 1)
-(defparameter +max-version+ 1)
+(defparameter *min-rice-parameter* 0)
+(defparameter *max-rice-parameter* 25)
+(defconstant +current-version+ 1)
+(defconstant +initial-version+ 1)
+(defconstant +max-version+ 1)
 
 ;; Encoding
 
@@ -34,11 +36,12 @@
     (position min seq)))
 
 (defun optimal-rice-parameter (seq start end)
-  (min-position
-   (loop for m from 0 below 20 collect 
-        (let ((*count* 0))
-          (loop for i from start below end do (write-rice nil (aref seq i) m))
-          *count*))))
+  (+ *min-rice-parameter*
+     (min-position
+      (loop for m from *min-rice-parameter* below *max-rice-parameter* collect
+           (let ((*count* 0))
+             (loop for i from start below end do (write-rice nil (aref seq i) m))
+             *count*)))))
 
 (defun write-wavelet-audio-header (stream metadata)
   "Write identifier and metadata to the stream. This function must
