@@ -1,6 +1,7 @@
 (in-package :wavelet-audio)
 
 (declaim (type (ub 16) *block-size*))
+(declaim (type rice-parameter *min-rice-parameter* *max-rice-parameter*))
 (defparameter *block-size* 1024)
 (defparameter *min-rice-parameter* 0)
 (defparameter *max-rice-parameter* 25)
@@ -23,24 +24,37 @@
 
 (defun add-padding (array)
   "Add zero padding in the end of array to make its size power of two"
-  (let* ((len (length array))
-         (pad-elements (- (nth-value 1 (ceiling len *block-size*))))
-         (padding (make-array pad-elements :initial-element 0))
-         (content (concatenate 'list array padding)))
-    (make-array (+ pad-elements len)
-                :element-type '(signed-byte 32)
-                :initial-contents content)))
+  (declare (optimize (speed 3)))
+  (declare (type (simple-array (sb 32)) array))
+  (let ((len (length array)))
+    (assert (<= len *block-size*))
+    (let ((pad-elements (- *block-size* len)))
+      (if (zerop pad-elements) array
+          (make-array *block-size*
+                      :element-type '(signed-byte 32)
+                      :initial-contents (concatenate 'list array
+                                                     (loop repeat pad-elements collect 0)))))))
 
-(defun min-position (seq)
-  (let ((min (reduce #'min seq)))
-    (position min seq)))
+(declaim (ftype (function (list) rice-parameter) min-position))
+(defun min-position (list)
+  (declare (optimize (speed 3))
+           (type list list))
+  (let ((min (reduce #'min list)))
+    (position min list)))
 
-(defun optimal-rice-parameter (seq start end)
+(declaim (ftype (function ((simple-array (sb 32))
+                           non-negative-fixnum
+                           non-negative-fixnum)
+                          rice-parameter)))
+(defun optimal-rice-parameter (array start end)
+  (declare (optimize (speed 3))
+           (type (simple-array (sb 32)) array)
+           (type non-negative-fixnum start end))
   (+ *min-rice-parameter*
      (min-position
       (loop for m from *min-rice-parameter* below *max-rice-parameter* collect
            (let ((*count* 0))
-             (loop for i from start below end do (write-rice nil (aref seq i) m))
+             (loop for i from start below end do (write-rice nil (aref array i) m))
              *count*)))))
 
 (defun write-wavelet-audio-header (stream metadata)

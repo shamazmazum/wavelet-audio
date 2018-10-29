@@ -2,13 +2,13 @@
 
 (declaim (type non-negative-fixnum *count*))
 (defvar *count* 0)
+(declaim (optimize (speed 3)))
 
 ;; Writing
 ;; Rice coding functions
 (defun write-rice-unsigned (stream residual m)
-  (declare (type (unsigned-byte 6) m)
-           (type (unsigned-byte 32) residual)
-           (optimize (speed 3)))
+  (declare (type rice-parameter m)
+           (type (unsigned-byte 32) residual))
   (let ((quotient (ash residual (- m)))
         (remainder (logand residual (1- (ash 1 m)))))
     (incf *count* (+ quotient 1 m))
@@ -18,8 +18,7 @@
       (write-bits remainder m stream))))
 
 (defun write-rice (stream residual m)
-  (declare (optimize (speed 3))
-           (type (signed-byte 32) residual))
+  (declare (type (signed-byte 32) residual))
   (write-rice-unsigned
    stream
    (+ (* 2 (abs residual))
@@ -27,8 +26,7 @@
    m))
 
 (defun write-block-number (stream block-number)
-  (declare (optimize (speed 3))
-           (type non-negative-fixnum block-number))
+  (declare (type non-negative-fixnum block-number))
   (let ((bits (logand #x7f block-number)))
     (cond
       ((/= block-number bits)
@@ -38,17 +36,21 @@
        (write-octet bits stream)))))
 
 ;; Reading
+(declaim (ftype (function (t rice-parameter)
+                          (ub 32))
+                read-rice-unsigned))
 (defun read-rice-unsigned (stream m)
+  (declare (type rice-parameter m))
   (let ((quotient
          (loop
             for bit = (read-bit stream)
             until (zerop bit)
-            sum 1))
+            sum 1 fixnum))
         (remainder (read-bits m stream)))
+    (declare (type (ub 32) quotient remainder))
     (+ remainder (ash quotient m))))
 
 (defun read-rice (stream m)
-  (declare (optimize (speed 3)))
   (let* ((unsigned (read-rice-unsigned stream m))
          (res (ash unsigned -1)))
     (declare (type (ub 32) unsigned res))
@@ -56,7 +58,6 @@
         res (- res))))
 
 (defun read-block-number (stream)
-  (declare (optimize (speed 3)))
   (labels ((read-block-number% (result octets)
              (declare (type non-negative-fixnum result)
                       (type (integer 0 32) octets))

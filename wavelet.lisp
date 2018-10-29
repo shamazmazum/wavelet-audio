@@ -3,6 +3,7 @@
 ;; This code uses (4,2) B-spline wavelet with factorization given in
 ;; "Factoring wavelet transforms into lifting steps" (Daubechies 1996)
 
+(declaim (optimize (speed 3)))
 (declaim (ftype (function (fixnum) fixnum) check-array-size))
 (defun check-array-size (size)
   "Ensure array size is power-of-two"
@@ -19,8 +20,7 @@
   "Define lifting scheme step"
   (with-gensym (skip start end i idx2 array)
     `(defun ,name (,array ,skip ,start ,end)
-       (declare (optimize (speed 3))
-                (type (simple-array (signed-byte 32)) ,array)
+       (declare (type (simple-array (signed-byte 32)) ,array)
                 (type fixnum ,skip ,start ,end))
        ,@(loop for clause in clauses collect
               `(loop for ,i fixnum from ,start below ,end by ,skip do
@@ -87,8 +87,7 @@
 
 (defun transform (array function &key (start 0) end inverse)
   "Generic transform function"
-  (declare (optimize (speed 3))
-           (type fixnum start)
+  (declare (type fixnum start)
            (type (or null fixnum) end)
            (type function function)
            (type (simple-array (signed-byte 32)) array))
@@ -116,8 +115,7 @@
              :inverse t))
 
 (defun forward-recopy (array)
-  (declare (optimize (speed 3))
-           (type (simple-array (signed-byte 32)) array))
+  (declare (type (simple-array (signed-byte 32)) array))
   (let* ((len (length array))
          (new-array (make-array len
                                 :element-type '(signed-byte 32)))
@@ -134,8 +132,7 @@
     new-array))
 
 (defun inverse-recopy (array)
-  (declare (optimize (speed 3))
-           (type (simple-array (signed-byte 32)) array))
+  (declare (type (simple-array (signed-byte 32)) array))
   (let* ((len (length array))
          (new-array (make-array (length array)
                                 :element-type '(signed-byte 32)))
