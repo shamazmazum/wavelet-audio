@@ -9,6 +9,7 @@
   (:use #:cl #:wavelet-transform #:trivial-bit-streams)
   (:export #:encode-wavelet-audio
            #:decode-wavelet-audio
+           #:open-wavelet-audio
 
            #:wavelet-audio-block
            #:encode-block
