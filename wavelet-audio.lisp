@@ -145,9 +145,9 @@ wavelet-audio file with name @cl:param(output-name)."
              for data = (wav:read-wav-data reader (car header)
                                            (min *block-size* (- samples-num data-read))
                                            :decompose t)
-             do
-               (setf (block-number data) block-count)
-               (write-block s (encode-block data)))
+             for wa-block = (encode-block data) do
+               (setf (block-number wa-block) block-count)
+               (write-block s wa-block))
           (flush-bit-output-stream s)))))
   t)
 
