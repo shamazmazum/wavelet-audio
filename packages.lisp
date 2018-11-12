@@ -10,6 +10,7 @@
   (:export #:encode-wavelet-audio
            #:decode-wavelet-audio
            #:open-wavelet-audio
+           #:write-wavelet-audio-header
 
            #:wavelet-audio-block
            #:encode-block

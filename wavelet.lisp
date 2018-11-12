@@ -100,15 +100,17 @@
   array)
 
 (defun wavelet-forward (array &key (start 0) end)
-  "Perform in-place forward wavelet transform in ARRAY of type (SIMPLE-ARRAY
-  (SIGNED-BYTE 32)). START and END can be used for definition of transform bounds"
+  "Perform in-place forward wavelet transform in @cl:param(array) of
+type @c((simple-array (signed-byte 32))). @cl:param(start) and
+@cl:param(end) can be used for definition of transform bounds."
   (transform array #'wavelet-forward-step
              :start start
              :end end))
 
 (defun wavelet-inverse (array &key (start 0) end)
-  "Perform in-place inverse wavelet transform in ARRAY of type (SIMPLE-ARRAY
-  (SIGNED-BYTE 32)). START and END can be used for definition of transform bounds"
+  "Perform in-place inverse wavelet transform in @cl:param(array) of
+type @c((simple-array (signed-byte 32))). @cl:param(start) and
+@cl:param(end) can be used for definition of transform bounds."
   (transform array #'wavelet-inverse-step
              :start start
              :end end
@@ -149,13 +151,14 @@
     new-array))
 
 (defun wavelet-forward-w/recopy (array)
-  "Perform out-of place forward wavelet transform. The result is recopied to
-have larger scale coefficients in the beginning of array and smaller scale 
-coefficients in the end."
+  "Perform out-of place forward wavelet transform. The result is
+recopied to have subband-by-subband coefficient order in the output
+array."
   (forward-recopy
    (wavelet-forward array)))
 
 (defun wavelet-inverse-w/recopy (array)
-  "Perform out-of place inverse wavelet transform returned by WAVELET-FORWARD-W/RECOPY."
+  "Perform out-of place inverse wavelet transform returned by
+@c(WAVELET-FORWARD-W/RECOPY)."
   (wavelet-inverse
    (inverse-recopy array)))

@@ -2,9 +2,11 @@
 
 (declaim (type (ub 16) *block-size*))
 (declaim (type rice-parameter *min-rice-parameter* *max-rice-parameter*))
-(defparameter *block-size* 1024)
-(defparameter *min-rice-parameter* 0)
-(defparameter *max-rice-parameter* 25)
+(defparameter *block-size* 1024 "Audio block size in samples.")
+(defparameter *min-rice-parameter* 0 "Minimal Rice parameter for
+exhaustive search for optimal parameter.")
+(defparameter *max-rice-parameter* 25 "Maximal Rice parameter for
+exhaustive search for optimal parameter.")
 (defconstant +current-version+ 1)
 (defconstant +initial-version+ 1)
 (defconstant +max-version+ 1)
@@ -12,7 +14,7 @@
 ;; Encoding
 
 (defun decorrelate-channels (chan1 chan2)
-  "Decorrelate audio channels in stereo stream"
+  "Decorrelate audio channels in stereo stream."
   (declare (type (simple-array (signed-byte 32)) chan1 chan2)
            (optimize (speed 3)))
   (map-into chan2 #'- chan2 chan1)
@@ -23,7 +25,7 @@
   (values chan1 chan2))
 
 (defun add-padding (array)
-  "Add zero padding in the end of array to make its size power of two"
+  "Add zero padding in the end of array to make its size power of two."
   (declare (optimize (speed 3)))
   (declare (type (simple-array (sb 32)) array))
   (let ((len (length array)))
@@ -47,6 +49,8 @@
                            non-negative-fixnum)
                           rice-parameter)))
 (defun optimal-rice-parameter (array start end)
+  "Find optimal paramter for Rice code for data in @cl:param(array) between
+@cl:param(start) and @cl:param(end) positions."
   (declare (optimize (speed 3))
            (type (simple-array (sb 32)) array)
            (type non-negative-fixnum start end))
@@ -79,8 +83,9 @@ be called first to newly created stream."
                  (loop for channel in channels collect
                       (wavelet-forward-w/recopy (add-padding channel)))))
 
-(defun write-block (stream wa-block &key block-number)
-  "Write encoded block to the stream."
+(defun write-block (stream wa-block)
+  "Write encoded block @cl:param(wa-block) to the stream
+@cl:param(stream)."
   (declare (optimize (speed 3))
            (type bit-output-stream stream)
            (type wavelet-audio-block wa-block))
@@ -88,7 +93,7 @@ be called first to newly created stream."
   (write-octet #xff stream)
   (write-octet #xfe stream)
   ;; Write block number
-  (write-block-number stream (or block-number (block-number wa-block)))
+  (write-block-number stream (block-number wa-block))
 
   (dolist (channel (block-channels wa-block))
     (declare (type (simple-array (sb 32)) channel))
@@ -108,7 +113,8 @@ be called first to newly created stream."
   wa-block)
 
 (defun encode-wavelet-audio (input-name output-name)
-  "Convert uncompressed wav file to wavelet-audio file"
+  "Convert uncompressed wav file with name @cl:param(input-name) to
+wavelet-audio file with name @cl:param(output-name)."
   (with-open-file (input input-name :element-type '(unsigned-byte 8))
     (let* ((reader (wav:open-wav input))
            (header (wav:read-wav-header reader))
@@ -139,8 +145,9 @@ be called first to newly created stream."
              for data = (wav:read-wav-data reader (car header)
                                            (min *block-size* (- samples-num data-read))
                                            :decompose t)
-             do (write-block s (encode-block data)
-                             :block-number block-count))
+             do
+               (setf (block-number data) block-count)
+               (write-block s (encode-block data)))
           (flush-bit-output-stream s)))))
   t)
 
@@ -165,7 +172,9 @@ be called first to newly created stream."
       (error 'wavelet-audio-error :format-control "Not a wavelet audio file")))
 
 (defun read-block (stream streaminfo)
-  "Read block from previously opened stream. STREAMINFO metadata block must be given."
+  "Read block from previously opened stream
+  @cl:param(stream). @cl:param(streaminfo) metadata block must be
+  given."
   (declare (optimize (speed 3))
            (type wavelet-audio-streaminfo streaminfo)
            (type bit-input-stream stream))
@@ -199,6 +208,7 @@ be called first to newly created stream."
     wa-block))
 
 (defun decode-block (wa-block)
+  "Decode audio block."
   (declare (optimize (speed 3)))
   (let* ((channels (block-channels wa-block))
          (decoded-channels (mapcar #'wavelet-inverse-w/recopy channels)))
@@ -208,7 +218,7 @@ be called first to newly created stream."
     decoded-channels))
 
 (defun open-wavelet-audio (stream)
-  "Check if STREAM is wavelet audio stream and read metadata."
+  "Check if @cl:param(stream) is wavelet audio stream and read metadata."
   (check-wavelet-audio stream)
   (let* ((metadata (read-metadata stream))
          (streaminfo (first metadata)))
@@ -219,7 +229,8 @@ be called first to newly created stream."
     metadata))
 
 (defun decode-wavelet-audio (input-name output-name)
-  "Decode wavelet-audio file into .wav file"
+  "Decode wavelet-audio file with name @cl:param(input-name) into .wav file
+with name @cl:param(output-name)"
   (with-open-file (input input-name :element-type '(unsigned-byte 8))
     (with-bit-input-stream
         (s :callback (make-stream-input-callback input))

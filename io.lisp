@@ -1,12 +1,15 @@
 (in-package :wavelet-audio)
 
 (declaim (type non-negative-fixnum *count*))
-(defvar *count* 0)
+(defvar *count* 0 "Bit counter")
 (declaim (optimize (speed 3)))
 
 ;; Writing
 ;; Rice coding functions
 (defun write-rice-unsigned (stream residual m)
+  "Write unsigned value @cl:param(residual) into stream @c(stream)
+using Rice coding with parameter @cl:param(m). If @cl:param(stream) is
+@c(nil), only internal bit counter is updated."
   (declare (type rice-parameter m)
            (type (unsigned-byte 32) residual))
   (let ((quotient (ash residual (- m)))
@@ -18,6 +21,9 @@
       (write-bits remainder m stream))))
 
 (defun write-rice (stream residual m)
+  "Write signed value @cl:param(residual) into stream
+@cl:param(stream) using Rice coding with parameter @cl:param(m). If
+@cl:param(stream) is @c(nil), only internal bit counter is updated."
   (declare (type (signed-byte 32) residual))
   (write-rice-unsigned
    stream
@@ -26,6 +32,8 @@
    m))
 
 (defun write-block-number (stream block-number)
+  "Compactly code block number @cl:param(block-number) into stream
+@cl:param(stream)."
   (declare (type non-negative-fixnum block-number))
   (let ((bits (logand #x7f block-number)))
     (cond
@@ -40,6 +48,8 @@
                           (ub 32))
                 read-rice-unsigned))
 (defun read-rice-unsigned (stream m)
+  "Read unsigned Rice coded value from @cl:param(stream). @cl:param(m)
+is the Rice code parameter."
   (declare (type rice-parameter m))
   (let ((quotient
          (loop
@@ -51,6 +61,8 @@
     (+ remainder (ash quotient m))))
 
 (defun read-rice (stream m)
+    "Read signed Rice coded value from @cl:param(stream). @cl:param(m)
+is the Rice code parameter."
   (let* ((unsigned (read-rice-unsigned stream m))
          (res (ash unsigned -1)))
     (declare (type (ub 32) unsigned res))
@@ -58,6 +70,7 @@
         res (- res))))
 
 (defun read-block-number (stream)
+  "Read block number from stream."
   (labels ((read-block-number% (result octets)
              (declare (type non-negative-fixnum result)
                       (type (integer 0 32) octets))

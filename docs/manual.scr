@@ -1,0 +1,74 @@
+@begin[ref=index](section)
+    @title(Overview)
+    @b(Wavelet-audio) is my experimental lossless audio codec based on
+    wavelet compression. It uses biorthogonal (4,2) "B-spline" wavelet
+    described in "Ten lectures on wavelets" book. First it
+    decorrelates audio channels (it supports up to 2 channel by now)
+    as follows: @c(r' = r-l, l'=(r+l)/2), where @c(l) and @c(r) are samples
+    in left and right channels. Then wavelet transform of each channel is
+    calculated and each subband is coded with Rice code with
+    subband-specific parameter. Optimal parameter is found by
+    exhaustive search (slow!). Compress ratio is 5-7% worse compared
+    to @b(FLAC) codec. @b(Wavelet-audio) operates on audio blocks (1024
+    samples by default, which seems to produce results with better
+    compression). Block sync code is written before each block, so
+    seeking and random access is supported by design, but not yet
+    implemented. Metadata blocks are written before any actual audio
+    data. The only metadata block supported by now is
+    @c(streaminfo). It contains basic information about audio stream,
+    e.g. sample rate and bits per sample.
+@end(section)
+
+@begin(section)
+    @title(Using wavelet-audio)
+    Generally you use just two functions: @c(encode-wavelet-audio) and
+    @c(decode-wavelet-audio) which convert between WAV files and
+    wavelet-audio (.wa) files. There is more advanced API. To encode
+    wavelet-audio stream you need to:
+    @begin(enum)
+        @item(Open bit stream for output using @c(trivial-bit-streams)
+              (you need my patched version).)
+        @item(Fill metadata block and write wavelet audio header using
+              @c(write-wavelet-audio-header).)
+        @item(Feed audio data in form of simple-array of 32 bit signed
+              integer values to @c(encode-block).)
+        @item(Write audio blocks with @c(write-block).)
+        @item(Flush and close bit stream.)
+    @end(enum)
+    To decode audio, you need to use counterparts to functions above:
+    @c(open-wavelet-audio), @c(read-block) and @c(decode-block).
+@end(section)
+
+@begin(section)
+    @title(API documentation)
+    @u(Conditions).
+    @cl:with-package[name="wavelet-audio"](
+        @cl:doc(condition wavelet-audio-error)
+        @cl:doc(condition wavelet-audio-warning)
+        @cl:doc(condition wavelet-audio-frame-error)
+        @cl:doc(condition wavelet-audio-unknown-metadata)
+    )
+    @u(Metadata and audio blocks).
+    @cl:with-package[name="wavelet-audio"](
+        @cl:doc(class wavelet-audio-streaminfo)
+        @cl:doc(class wavelet-audio-block)
+    )
+    @u(Stream decoding).
+    @cl:with-package[name="wavelet-audio"](
+        @cl:doc(function open-wavelet-audio)
+        @cl:doc(function read-block)
+        @cl:doc(function decode-block)
+    )
+    @u(Stream encoding).
+    @cl:with-package[name="wavelet-audio"](
+        @cl:doc(function write-wavelet-audio-header)
+        @cl:doc(function encode-block)
+        @cl:doc(function write-block)
+    )
+    @u(Tunables).
+    @cl:with-package[name="wavelet-audio"](
+        @cl:doc(variable *block-size*)
+        @cl:doc(variable *min-rice-parameter*)
+        @cl:doc(variable *max-rice-parameter*)
+    )
+@end(section)

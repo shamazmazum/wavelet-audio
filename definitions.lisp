@@ -15,7 +15,7 @@
    (lastp :type boolean
           :initarg :lastp
           :accessor metadata-last-p
-          :documentation "T if this metadata block is the last in the stream.")
+          :documentation "@c(T) if this metadata block is the last in the stream.")
    (size  :type non-negative-fixnum
           :initarg :size
           :accessor metadata-size
@@ -30,7 +30,7 @@
    (samplerate :type (ub 24)
                :accessor streaminfo-samplerate
                :initarg :samplerate
-               :documentation "Sample rate in Hertz")
+               :documentation "Sample rate in Hertz.")
    (bps        :type (ub 8)
                :accessor streaminfo-bps
                :initarg :bps
@@ -38,15 +38,15 @@
    (channels   :type (ub 8)
                :accessor streaminfo-channels
                :initarg :channels
-               :documentation "Number of channels")
+               :documentation "Number of channels.")
    (samples    :type (ub 32)
                :accessor streaminfo-samples
                :initarg :samples
-               :documentation "Number of interchannel samples")
+               :documentation "Number of interchannel samples.")
    (block-size :type (ub 16)
                :accessor streaminfo-block-size
                :initarg :block-size
-               :documentation "Block size in samples"))
+               :documentation "Block size in samples."))
   (:default-initargs
    :size 12
    :type +metadata-streaminfo+)

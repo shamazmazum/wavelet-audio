@@ -25,6 +25,7 @@
   streaminfo)
 
 (defun write-metadata (stream list)
+  "Write @cl:param(list) of metadata blocks to @c(stream)."
   (mapc (lambda (metadata)
           (setf (metadata-last-p metadata) nil))
         (butlast list))
@@ -49,13 +50,16 @@
   streaminfo)
 
 (defun transform-metadata (metadata)
-  (change-class metadata
-                (cond
-                  ((= (metadata-type metadata) +metadata-streaminfo+)
-                   'wavelet-audio-streaminfo)
-                  (t 'wavelet-audio-metadata))))
+  "Transform metadata block to more suitable class."
+  (change-class
+   metadata
+   (cond
+     ((= (metadata-type metadata) +metadata-streaminfo+)
+      'wavelet-audio-streaminfo)
+     (t 'wavelet-audio-metadata))))
 
 (defun read-metadata (stream)
+  "Read metadata blocks from stream."
   (loop
      for metadata = (make-instance 'wavelet-audio-metadata)
      collect
