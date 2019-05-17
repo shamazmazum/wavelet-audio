@@ -3,10 +3,10 @@
   :version "0.1"
   :author "Vasily Postnicov <shamaz.mazum@gmail.com>"
   :description "Proof of concept for lossless audio compressor"
-  :components ((:file "packages")
-               (:file "wavelet" :depends-on ("packages"))
-               (:file "definitions" :depends-on ("packages"))
-               (:file "io" :depends-on ("packages"))
-               (:file "metadata" :depends-on ("packages"))
-               (:file "wavelet-audio" :depends-on ("packages")))
+  :components ((:file "src/packages")
+               (:file "src/wavelet" :depends-on ("src/packages"))
+               (:file "src/definitions" :depends-on ("src/packages"))
+               (:file "src/io" :depends-on ("src/packages"))
+               (:file "src/metadata" :depends-on ("src/packages"))
+               (:file "src/wavelet-audio" :depends-on ("src/packages")))
   :depends-on (:easy-audio :trivial-bit-streams))
