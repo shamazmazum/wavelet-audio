@@ -22,6 +22,7 @@
   (write-octet (streaminfo-channels streaminfo) stream)
   (write-bits (streaminfo-samples streaminfo) 32 stream)
   (write-bits (streaminfo-block-size streaminfo) 16 stream)
+  (write-octet (streaminfo-history-size streaminfo) stream)
   streaminfo)
 
 (defun write-metadata (stream list)
@@ -46,7 +47,8 @@
         (streaminfo-bps streaminfo) (read-octet stream)
         (streaminfo-channels streaminfo) (read-octet stream)
         (streaminfo-samples streaminfo) (read-bits 32 stream)
-        (streaminfo-block-size streaminfo) (read-bits 16 stream))
+        (streaminfo-block-size streaminfo) (read-bits 16 stream)
+        (streaminfo-history-size streaminfo) (read-octet stream))
   streaminfo)
 
 (defun transform-metadata (metadata)

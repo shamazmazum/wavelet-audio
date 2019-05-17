@@ -1,10 +1,11 @@
 (in-package :wavelet-audio)
 
 (declaim (type (ub 16) *block-size*))
-(defparameter *block-size* 1024 "Audio block size in samples.")
-(defconstant +current-version+ 1)
+(defparameter *block-size* 4096  "Audio block size in samples.")
+(defparameter *history-size* 50 "History size for adaptive Rice coder")
+(defconstant +current-version+ 2)
 (defconstant +initial-version+ 1)
-(defconstant +max-version+ 1)
+(defconstant +max-version+ 2)
 
 ;; Encoding
 
@@ -68,16 +69,16 @@ be called first to newly created stream."
 
   (dolist (channel (block-channels wa-block))
     (declare (type (simple-array (sb 32)) channel))
-    (let ((coder (make-adaptive-coder)))
-      (adaptive-write coder stream (aref channel 0))
-      (adaptive-write coder stream (aref channel 1)))
+    (let ((history (make-history 2)))
+      (adaptive-write history stream (aref channel 0))
+      (adaptive-write history stream (aref channel 1)))
     (loop
        for i from 1 below (1- (integer-length *block-size*))
        for start-idx = (ash 1 i)
        for end-idx = (ash 1 (1+ i))
-       for coder = (make-adaptive-coder) do
+       for history = (make-history *history-size*) do
          (loop for idx from start-idx below end-idx do
-              (adaptive-write coder stream (aref channel idx)))))
+              (adaptive-write history stream (aref channel idx)))))
   (pad-to-byte-alignment 0 stream)
   wa-block)
 
@@ -95,7 +96,8 @@ wavelet-audio file with name @cl:param(output-name)."
                                 :channels (wav:format-channels-num (car header))
                                 :bps (wav:format-bps (car header))
                                 :samples (+ samples-num padding-num)
-                                :block-size *block-size*)))
+                                :block-size *block-size*
+                                :history-size *history-size*)))
       (wav:reader-position-to-audio-data reader header)
 
       (with-open-file (output
@@ -153,6 +155,7 @@ wavelet-audio file with name @cl:param(output-name)."
 
   (let* ((channels (streaminfo-channels streaminfo))
          (block-size (streaminfo-block-size streaminfo))
+         (history-size (streaminfo-history-size streaminfo))
          (wa-block (make-instance 'wavelet-audio-block
                                   :streaminfo streaminfo
                                   :channels (loop repeat channels collect
@@ -163,16 +166,16 @@ wavelet-audio file with name @cl:param(output-name)."
              (type (ub 16) block-size))
     (dolist (channel (block-channels wa-block))
       (declare (type (simple-array (sb 32)) channel))
-      (let ((coder (make-adaptive-coder)))
-        (setf (aref channel 0) (adaptive-read coder stream)
-              (aref channel 1) (adaptive-read coder stream)))
+      (let ((history (make-history 2)))
+        (setf (aref channel 0) (adaptive-read history stream)
+              (aref channel 1) (adaptive-read history stream)))
       (loop
          for i from 1 below (1- (integer-length block-size))
          for start-idx = (ash 1 i)
          for end-idx = (ash 1 (1+ i))
-         for coder = (make-adaptive-coder) do
+         for history = (make-history history-size) do
            (loop for idx from start-idx below end-idx do
-                (setf (aref channel idx) (adaptive-read coder stream)))))
+                (setf (aref channel idx) (adaptive-read history stream)))))
     (read-to-byte-alignment stream)
     wa-block))
 

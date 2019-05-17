@@ -24,32 +24,36 @@
   (:documentation "Generic metadata class"))
 
 (defclass wavelet-audio-streaminfo (wavelet-audio-metadata)
-  ((version    :type (ub 8)
-               :accessor streaminfo-version
-               :initarg :version
-               :documentation "Stream version.")
-   (samplerate :type (ub 24)
-               :accessor streaminfo-samplerate
-               :initarg :samplerate
-               :documentation "Sample rate in Hertz.")
-   (bps        :type (ub 8)
-               :accessor streaminfo-bps
-               :initarg :bps
-               :documentation "Bits per sample.")
-   (channels   :type (ub 8)
-               :accessor streaminfo-channels
-               :initarg :channels
-               :documentation "Number of channels.")
-   (samples    :type (ub 32)
-               :accessor streaminfo-samples
-               :initarg :samples
-               :documentation "Number of interchannel samples.")
-   (block-size :type (ub 16)
-               :accessor streaminfo-block-size
-               :initarg :block-size
-               :documentation "Block size in samples."))
+  ((version      :type (ub 8)
+                 :accessor streaminfo-version
+                 :initarg :version
+                 :documentation "Stream version.")
+   (samplerate   :type (ub 24)
+                 :accessor streaminfo-samplerate
+                 :initarg :samplerate
+                 :documentation "Sample rate in Hertz.")
+   (bps          :type (ub 8)
+                 :accessor streaminfo-bps
+                 :initarg :bps
+                 :documentation "Bits per sample.")
+   (channels     :type (ub 8)
+                 :accessor streaminfo-channels
+                 :initarg :channels
+                 :documentation "Number of channels.")
+   (samples      :type (ub 32)
+                 :accessor streaminfo-samples
+                 :initarg :samples
+                 :documentation "Number of interchannel samples.")
+   (block-size   :type (ub 16)
+                 :accessor streaminfo-block-size
+                 :initarg :block-size
+                 :documentation "Block size in samples.")
+   (history-size :type (ub 8)
+                 :accessor streaminfo-history-size
+                 :initarg :history-size
+                 :documentation "History size for adaptive Rice coder"))
   (:default-initargs
-   :size 12
+   :size 13
    :type +metadata-streaminfo+)
   (:documentation "Stream info metadata."))
 

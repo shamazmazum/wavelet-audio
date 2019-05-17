@@ -58,6 +58,25 @@
                            (loop repeat (length sequence) collect
                                 (wavelet-audio::read-golomb stream p))))))))))
 
+(test history
+  "Test history tracking"
+  (let ((history (wavelet-audio::make-history 5)))
+    (is (= (wavelet-audio::history-sum history) 0))
+    (wavelet-audio::history-insert history 1)
+    (is (= (wavelet-audio::history-sum history) 1))
+    (wavelet-audio::history-insert history 2)
+    (is (= (wavelet-audio::history-sum history) 3))
+    (wavelet-audio::history-insert history 3)
+    (is (= (wavelet-audio::history-sum history) 6))
+    (wavelet-audio::history-insert history 4)
+    (is (= (wavelet-audio::history-sum history) 10))
+    (wavelet-audio::history-insert history 5)
+    (is (= (wavelet-audio::history-sum history) 15))
+    (wavelet-audio::history-insert history 6)
+    (is (= (wavelet-audio::history-sum history) 20))
+    (wavelet-audio::history-insert history 7)
+    (is (= (wavelet-audio::history-sum history) 25))))
+
 (test adaptive-rice-code
   "Test adaptive Rice coder"
   (let ((sequence (loop for x from -30 to 30 collect x)))
@@ -66,13 +85,13 @@
              (with-bit-output-stream (stream :callback (make-stream-output-callback octet-stream))
                (loop
                   for x in sequence
-                  with coder = (wavelet-audio::make-adaptive-coder)
+                  with history = (wavelet-audio::make-history 10)
                   do
-                    (wavelet-audio::adaptive-write coder stream x))))))
+                    (wavelet-audio::adaptive-write history stream x))))))
       (is (equalp sequence
                   (with-input-from-sequence (octet-stream output)
                     (with-bit-input-stream (stream :callback (make-stream-input-callback octet-stream))
                       (loop
-                         with coder = (wavelet-audio::make-adaptive-coder)
+                         with history = (wavelet-audio::make-history 10)
                          repeat (length sequence) collect
-                           (wavelet-audio::adaptive-read coder stream)))))))))
+                           (wavelet-audio::adaptive-read history stream)))))))))

@@ -6,6 +6,7 @@
   :components ((:file "src/packages")
                (:file "src/wavelet" :depends-on ("src/packages"))
                (:file "src/definitions" :depends-on ("src/packages"))
+               (:file "src/history" :depends-on ("src/packages"))
                (:file "src/io" :depends-on ("src/packages"))
                (:file "src/metadata" :depends-on ("src/packages"))
                (:file "src/wavelet-audio" :depends-on ("src/packages")))

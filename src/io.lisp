@@ -128,39 +128,27 @@ is the Rice code parameter."
     (declare (dynamic-extent #'read-block-number%))
     (read-block-number% 0 0)))
 
-(defstruct adaptive-coder
-  (count 0 :type non-negative-fixnum)
-  (sum 0 :type unsigned-byte))
-
-(defun adaptive-write (coder stream residual)
+(defun adaptive-write (history stream residual)
   (declare (type (sb 32) residual)
-           (type adaptive-coder coder))
-  (with-accessors ((count adaptive-coder-count)
-                   (sum adaptive-coder-sum))
-      coder
-    (let* ((avg (if (zerop count)
-                    (abs residual)
-                    (truncate sum count)))
-           (p (integer-length avg)))
-      (declare (type rice-parameter p)
-               (type (ub 32) avg))
-      (if (zerop count)
-          (write-bits p 5 stream))
-      (write-rice stream residual p))
-    (incf sum (abs residual))
-    (incf count)))
+           (type history history))
+  (let ((p (integer-length
+            (if (zerop (history-count history))
+                (abs residual)
+                (history-avg history)))))
+    (declare (type rice-parameter p))
+    (if (zerop (history-count history))
+        (write-bits p 5 stream))
+    (write-rice stream residual p))
+  (history-insert history (abs residual)))
 
-(defun adaptive-read (coder stream)
-  (with-accessors ((count adaptive-coder-count)
-                   (sum adaptive-coder-sum))
-      coder
-    (let ((residual
-           (read-rice
-            stream
-            (the rice-parameter
-                 (if (zerop count)
-                     (read-bits 5 stream)
-                     (integer-length (truncate sum count)))))))
-      (incf count)
-      (incf sum (abs residual))
-      residual)))
+(defun adaptive-read (history stream)
+  (declare (type history history))
+  (let ((residual
+         (read-rice
+          stream
+          (the rice-parameter
+               (if (zerop (history-count history))
+                   (read-bits 5 stream)
+                   (integer-length (history-avg history)))))))
+    (history-insert history (abs residual))
+    residual))
