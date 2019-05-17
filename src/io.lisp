@@ -40,6 +40,7 @@
               until (zerop bit)
               sum 1 fixnum))
           (rem (read-bits (1- bits) stream)))
+      (declare (type (ub 32) quotient rem))
       (+ (* quotient m)
          (if (< rem threshold) rem
              (-
@@ -132,6 +133,8 @@ is the Rice code parameter."
   (sum 0 :type unsigned-byte))
 
 (defun adaptive-write (coder stream residual)
+  (declare (type (sb 32) residual)
+           (type adaptive-coder coder))
   (with-accessors ((count adaptive-coder-count)
                    (sum adaptive-coder-sum))
       coder
@@ -139,7 +142,8 @@ is the Rice code parameter."
                     (abs residual)
                     (truncate sum count)))
            (p (integer-length avg)))
-      (declare (type rice-parameter p))
+      (declare (type rice-parameter p)
+               (type (ub 32) avg))
       (if (zerop count)
           (write-bits p 5 stream))
       (write-rice stream residual p))
