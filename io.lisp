@@ -1,7 +1,4 @@
 (in-package :wavelet-audio)
-
-(declaim (type non-negative-fixnum *count*))
-(defvar *count* 0 "Bit counter")
 (declaim (optimize (speed 3)))
 
 ;; Writing
@@ -14,7 +11,6 @@ using Rice coding with parameter @cl:param(m). If @cl:param(stream) is
            (type (unsigned-byte 32) residual))
   (let ((quotient (ash residual (- m)))
         (remainder (logand residual (1- (ash 1 m)))))
-    (incf *count* (+ quotient 1 m))
     (when stream
       (loop repeat quotient do (write-bit 1 stream))
       (write-bit 0 stream)
@@ -30,6 +26,40 @@ using Rice coding with parameter @cl:param(m). If @cl:param(stream) is
    (+ (* 2 (abs residual))
       (if (< residual 0) 1 0))
    m))
+
+(defstruct adaptive-coder
+  (count 0 :type unsigned-byte)
+  (sum 0 :type unsigned-byte))
+
+(defun adaptive-write (coder stream residual)
+  (with-accessors ((count adaptive-coder-count)
+                   (sum adaptive-coder-sum))
+      coder
+    (let* ((avg (if (zerop count)
+                    (abs residual)
+                    (truncate sum count)))
+           (p (integer-length avg)))
+      (declare (type rice-parameter p))
+      (if (zerop count)
+          (write-bits p 5 stream))
+      (write-rice stream residual p))
+    (incf sum (abs residual))
+    (incf count)))
+
+(defun adaptive-read (coder stream)
+  (with-accessors ((count adaptive-coder-count)
+                   (sum adaptive-coder-sum))
+      coder
+    (let ((residual
+           (read-rice
+            stream
+            (the rice-parameter
+                 (if (zerop count)
+                     (read-bits 5 stream)
+                     (integer-length (truncate sum count)))))))
+      (incf count)
+      (incf sum (abs residual))
+      residual)))
 
 (defun write-block-number (stream block-number)
   "Compactly code block number @cl:param(block-number) into stream

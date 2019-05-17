@@ -1,12 +1,7 @@
 (in-package :wavelet-audio)
 
 (declaim (type (ub 16) *block-size*))
-(declaim (type rice-parameter *min-rice-parameter* *max-rice-parameter*))
 (defparameter *block-size* 1024 "Audio block size in samples.")
-(defparameter *min-rice-parameter* 0 "Minimal Rice parameter for
-exhaustive search for optimal parameter.")
-(defparameter *max-rice-parameter* 25 "Maximal Rice parameter for
-exhaustive search for optimal parameter.")
 (defconstant +current-version+ 1)
 (defconstant +initial-version+ 1)
 (defconstant +max-version+ 1)
@@ -36,30 +31,6 @@ exhaustive search for optimal parameter.")
                       :element-type '(signed-byte 32)
                       :initial-contents (concatenate 'list array
                                                      (loop repeat pad-elements collect 0)))))))
-
-(declaim (ftype (function (list) rice-parameter) min-position))
-(defun min-position (list)
-  (declare (optimize (speed 3))
-           (type list list))
-  (let ((min (reduce #'min list)))
-    (position min list)))
-
-(declaim (ftype (function ((simple-array (sb 32))
-                           non-negative-fixnum
-                           non-negative-fixnum)
-                          rice-parameter)))
-(defun optimal-rice-parameter (array start end)
-  "Find optimal paramter for Rice code for data in @cl:param(array) between
-@cl:param(start) and @cl:param(end) positions."
-  (declare (optimize (speed 3))
-           (type (simple-array (sb 32)) array)
-           (type non-negative-fixnum start end))
-  (+ *min-rice-parameter*
-     (min-position
-      (loop for m from *min-rice-parameter* below *max-rice-parameter* collect
-           (let ((*count* 0))
-             (loop for i from start below end do (write-rice nil (aref array i) m))
-             *count*)))))
 
 (defun write-wavelet-audio-header (stream metadata)
   "Write identifier and metadata to the stream. This function must
@@ -97,18 +68,16 @@ be called first to newly created stream."
 
   (dolist (channel (block-channels wa-block))
     (declare (type (simple-array (sb 32)) channel))
-    (let ((p (optimal-rice-parameter channel 0 2)))
-      (write-bits p 5 stream)
-      (write-rice stream (aref channel 0) p)
-      (write-rice stream (aref channel 1) p))
+    (let ((coder (make-adaptive-coder)))
+      (adaptive-write coder stream (aref channel 0))
+      (adaptive-write coder stream (aref channel 1)))
     (loop
        for i from 1 below (1- (integer-length *block-size*))
        for start-idx = (ash 1 i)
        for end-idx = (ash 1 (1+ i))
-       for p = (optimal-rice-parameter channel start-idx end-idx) do
-         (write-bits p 5 stream)
+       for coder = (make-adaptive-coder) do
          (loop for idx from start-idx below end-idx do
-              (write-rice stream (aref channel idx) p))))
+              (adaptive-write coder stream (aref channel idx)))))
   (pad-to-byte-alignment 0 stream)
   wa-block)
 
@@ -194,16 +163,16 @@ wavelet-audio file with name @cl:param(output-name)."
              (type (ub 16) block-size))
     (dolist (channel (block-channels wa-block))
       (declare (type (simple-array (sb 32)) channel))
-      (let ((p (read-bits 5 stream)))
-        (setf (aref channel 0) (read-rice stream p))
-        (setf (aref channel 1) (read-rice stream p)))
+      (let ((coder (make-adaptive-coder)))
+        (setf (aref channel 0) (adaptive-read coder stream)
+              (aref channel 1) (adaptive-read coder stream)))
       (loop
          for i from 1 below (1- (integer-length block-size))
          for start-idx = (ash 1 i)
          for end-idx = (ash 1 (1+ i))
-         for p = (read-bits 5 stream) do
+         for coder = (make-adaptive-coder) do
            (loop for idx from start-idx below end-idx do
-                (setf (aref channel idx) (read-rice stream p)))))
+                (setf (aref channel idx) (adaptive-read coder stream)))))
     (read-to-byte-alignment stream)
     wa-block))
 
