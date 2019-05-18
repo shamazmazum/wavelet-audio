@@ -1,6 +1,7 @@
 (in-package :wavelet-audio)
 
-(declaim (type (ub 16) *block-size*))
+(declaim (type (ub 16) *block-size*)
+         (type (ub 8) *history-size*))
 (defparameter *block-size* 4096  "Audio block size in samples.")
 (defparameter *history-size* 50 "History size for adaptive Rice coder")
 (defconstant +current-version+ 2)
