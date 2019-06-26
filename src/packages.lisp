@@ -31,5 +31,8 @@
            #:wavelet-audio-frame-error
            #:wavelet-audio-unknown-metadata
 
+           #:restore-sync
+           #:seek-sample
+
            #:*block-size*
            #:*history-size*))

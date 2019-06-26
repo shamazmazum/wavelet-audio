@@ -9,5 +9,6 @@
                (:file "src/history" :depends-on ("src/packages"))
                (:file "src/io" :depends-on ("src/packages"))
                (:file "src/metadata" :depends-on ("src/packages"))
-               (:file "src/wavelet-audio" :depends-on ("src/packages")))
+               (:file "src/wavelet-audio" :depends-on ("src/packages"))
+               (:file "src/seek" :depends-on ("src/packages")))
   :depends-on (:easy-audio :trivial-bit-streams))

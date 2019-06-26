@@ -95,3 +95,9 @@
                          with history = (wavelet-audio::make-history 10)
                          repeat (length sequence) collect
                            (wavelet-audio::adaptive-read history stream)))))))))
+
+(test peek-octet
+  (let ((wavelet-audio::*buffer-len* 2))
+    (with-input-from-sequence (stream #(0 1 2 3 4 5 6 7 8 9 10))
+      (is (= (wavelet-audio::peek-octet stream 9) 9))
+      (is (= (read-byte stream) 9)))))
