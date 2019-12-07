@@ -4,8 +4,12 @@
 (def-suite io :description "Input/output tests")
 
 (defun run-tests ()
-  (explain! (run 'wavelet))
-  (explain! (run 'io)))
+  (every #'identity
+         (mapcar (lambda (suite)
+                   (let ((status (run suite)))
+                     (explain! status)
+                     (results-status status)))
+                 '(wavelet io))))
 
 (in-suite wavelet)
 (test transform
