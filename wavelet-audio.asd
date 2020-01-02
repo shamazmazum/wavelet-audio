@@ -11,4 +11,11 @@
                (:file "src/metadata" :depends-on ("src/packages"))
                (:file "src/wavelet-audio" :depends-on ("src/packages"))
                (:file "src/seek" :depends-on ("src/packages")))
-  :depends-on (:easy-audio :trivial-bit-streams))
+  :depends-on (:easy-audio :trivial-bit-streams)
+  :in-order-to ((test-op (load-op "wavelet-audio-tests")))
+  :perform (test-op (op system)
+                    (declare (ignore op system))
+                    (funcall
+                     (symbol-function
+                      (intern (symbol-name '#:run-tests)
+                              (find-package :wavelet-audio-tests))))))
