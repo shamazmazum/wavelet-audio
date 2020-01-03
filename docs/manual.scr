@@ -2,18 +2,18 @@
     @title(Overview)
     @b(Wavelet-audio) is my experimental lossless audio codec based on
     wavelet compression. It uses biorthogonal (4,2) "B-spline" wavelet
-    described in "Ten lectures on wavelets" book. First it
-    decorrelates audio channels (it supports up to 2 channel by now)
-    as follows: @c(r' = r-l, l'=(r+l)/2), where @c(l) and @c(r) are samples
-    in left and right channels. Then wavelet transform of each channel is
-    calculated and each subband is coded with Rice code with
-    subband-specific parameter. Optimal parameter is found by
-    exhaustive search (slow!). Compress ratio is 5-7% worse compared
-    to @b(FLAC) codec. @b(Wavelet-audio) operates on audio blocks (1024
-    samples by default, which seems to produce results with better
-    compression). Block sync code is written before each block, so
-    seeking and random access is supported by design, but not yet
-    implemented. Metadata blocks are written before any actual audio
+    described in "Ten lectures on wavelets" book by Ingrid
+    Daubechies. At first it decorrelates audio channels (it supports up
+    to 2 channel by now) using following formula: @c(r' = r-l,
+    l'=(r+l)/2), where @c(l) and @c(r) are samples in left and right
+    channels. Then wavelet transform of each channel is calculated and
+    each subband is coded with adaptive Rice code (the parameter of
+    Rice code is calculated using running average). Compress ratio is
+    5-7% worse compared to @b(FLAC) codec. @b(Wavelet-audio) operates
+    on audio blocks (4096 samples by default, which seems to produce
+    results with the best compression). Block sync code is written
+    before each block, so seeking and random access is
+    possible. Metadata blocks are written before any actual audio
     data. The only metadata block supported by now is
     @c(streaminfo). It contains basic information about audio stream,
     e.g. sample rate and bits per sample.
@@ -26,8 +26,10 @@
     wavelet-audio (.wa) files. There is more advanced API. To encode
     wavelet-audio stream you need to:
     @begin(enum)
-        @item(Open bit stream for output using @c(trivial-bit-streams)
-              (you need my patched version).)
+        @item(Open bit stream for output using @c(trivial-bit-streams).
+              You may wish to use
+              @link[uri="https://github.com/shamazmazum/trivial-bit-streams"](my
+              version) of @c(trivial-bit-streams), which is faster.)
         @item(Fill metadata block and write wavelet audio header using
               @c(write-wavelet-audio-header).)
         @item(Feed audio data in form of simple-array of 32 bit signed
