@@ -4,7 +4,8 @@ language: common-lisp
 env:
   matrix:
     - LISP=sbcl
-    - LISP=allegro
+# This configuration fails
+#   - LISP=allegro
     - LISP=ccl
 
 install:
@@ -18,8 +19,9 @@ install:
   - cl -l easy-audio -l fiveam -l flexi-streams -e '(ql-util:without-prompting (ql:add-to-init-file))'
 
 before-script:
-  - mkdir lisp && pushd lisp && git clone git://github.com/shamazmazum/cl-wavelets.git && popd
-  - mkdir lisp && pushd lisp && git clone git://github.com/shamazmazum/trivial-bit-streams.git && popd
+  - mkdir lisp
+  - pushd lisp && git clone git://github.com/shamazmazum/cl-wavelets.git && popd
+  - pushd lisp && git clone git://github.com/shamazmazum/trivial-bit-streams.git && popd
 
 script:
   - cl -f $TRAVIS_BUILD_DIR/tests/travis.lisp

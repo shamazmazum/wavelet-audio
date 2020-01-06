@@ -22,7 +22,7 @@
   (error 'not-implemented :proc (list 'quit code)))
 
 (defun do-all()
-  (asdf:load-system :wavelet-audio-tests)
+  (asdf:load-system :wavelet-audio/tests)
   (portable-quit
    (if (funcall
         (intern (symbol-name :run-tests)
