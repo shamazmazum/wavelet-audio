@@ -52,9 +52,11 @@ be called first to newly created stream."
            (type list channels))
   (if (= (length (the list channels)) 2)
       (apply #'decorrelate-channels channels))
-  (make-instance 'wavelet-audio-block :channels
-                 (loop for channel in channels collect
-                      (wavelet-forward-w/recopy (add-padding channel)))))
+  (flet ((encode-channel (channel)
+           (dwt! (add-padding channel) :wavelet :cdf-4-2)))
+    (make-instance 'wavelet-audio-block
+                   :channels
+                   (mapcar #'encode-channel channels))))
 
 (defun write-block (stream wa-block)
   "Write encoded block @cl:param(wa-block) to the stream
@@ -183,12 +185,13 @@ wavelet-audio file with name @cl:param(output-name)."
 (defun decode-block (wa-block)
   "Decode audio block."
   (declare (optimize (speed 3)))
-  (let* ((channels (block-channels wa-block))
-         (decoded-channels (mapcar #'wavelet-inverse-w/recopy channels)))
-    (if (= (length (the list channels)) 2)
-        (correlate-channels (first decoded-channels)
-                            (second decoded-channels)))
-    decoded-channels))
+  (flet ((decode-channel (channel)
+           (dwt-inverse! channel :wavelet :cdf-4-2)))
+    (let ((decoded-channels (mapcar #'decode-channel
+                                    (block-channels wa-block))))
+      (if (= (length decoded-channels) 2)
+          (apply #'correlate-channels decoded-channels))
+      decoded-channels)))
 
 (defun open-wavelet-audio (stream)
   "Check if @cl:param(stream) is wavelet audio stream and read metadata."

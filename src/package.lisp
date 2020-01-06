@@ -1,12 +1,5 @@
-(defpackage wavelet-transform
-  (:use #:cl)
-  (:export #:wavelet-forward
-           #:wavelet-inverse
-           #:wavelet-forward-w/recopy
-           #:wavelet-inverse-w/recopy))
-
 (defpackage wavelet-audio
-  (:use #:cl #:wavelet-transform #:trivial-bit-streams)
+  (:use #:cl #:cl-wavelets #:trivial-bit-streams)
   (:export #:encode-wavelet-audio
            #:decode-wavelet-audio
            #:open-wavelet-audio

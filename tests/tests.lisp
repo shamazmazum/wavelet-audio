@@ -1,6 +1,5 @@
 (in-package :wavelet-audio-tests)
 
-(def-suite wavelet :description "Wavelet transform tests")
 (def-suite io :description "Input/output tests")
 
 (defun run-tests ()
@@ -9,27 +8,7 @@
                    (let ((status (run suite)))
                      (explain! status)
                      (results-status status)))
-                 '(wavelet io))))
-
-(in-suite wavelet)
-(test transform
-  "Test wavelet transform"
-  (let* ((array (make-array 2048
-                            :element-type '(signed-byte 32)
-                            :initial-contents (loop repeat 2048 collect (- (random 500) 1000))))
-         (array2 (copy-seq array)))
-    (setq array2 (wavelet-transform:wavelet-inverse (wavelet-transform:wavelet-forward array2)))
-    (is (equalp array array2))))
-
-(test transform-recopy
-  "Test wavelet transform with recopy"
-  (let* ((array (make-array 2048
-                            :element-type '(signed-byte 32)
-                            :initial-contents (loop repeat 2048 collect (- (random 500) 1000))))
-         (array2 (copy-seq array)))
-    (setq array2 (wavelet-transform:wavelet-inverse-w/recopy
-                  (wavelet-transform:wavelet-forward-w/recopy array2)))
-    (is (equalp array array2))))
+                 '(io))))
 
 (in-suite io)
 (test rice-code
