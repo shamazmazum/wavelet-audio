@@ -2,6 +2,8 @@ dist: bionic
 language: common-lisp
 
 env:
+  global:
+    secure: "ALd4yIbcTNaJV6cpCOL68y4+806PxTUjxKhtrHPkTlvnAo5HTLVYmSpO8/1+b7ovIWgSuuusjM/aJyeg6pm2tJGG2+wpruUf1E/xm5nAHGoNAMoIFoxqp+0wm606SwCGe+QvwqaJUTpwNTfaeD5EU6JbgeizwMDnY1HJicnQPs97Fma9ZhmOLSHNd2iHy2VRCFW/9H/BlU89cwR+5qFtKcgPA/jasOiSwIokRfbC+4QMhlVVrYKaukeWjXWI2OTbVzu4r1y9DP6gAT+dCzGRpjFRoFicORtMbk6NL8QaD0QSjrbWBXkcNqVWy0nbfHaikxT4MSLqkb+VXb+UlTJ+hANQJ1Dct1tHVc8WRh13nm/Moql+jB1X2xl4Jh5198j/NU9HA0vYYrFLGFjiuR4T8+dtQav4DF76y+nP+JIwrQhf5bzsDY08mCKIxhQPZhRZaNeSJIFD/JIekq6NGogREq7hPCntQUMwqhSXsiaXjmLVQOcrKukgyXp8WN1B0mw1GX48Tzh0RfzZFDB+hMq2jhTBu9tY0E8xNnksYSrF6kvydrVIVWpSEbGNXG8cNkMX3W5ruM6xhpVshEl0iOvePBj/iUvG48oXIzGhuuZu1TlH8u2Z/bcSj7WUa1V3T/0dhyGVe4ozyn6YzlVqQGusXiO4cU77ju8qkg7IcaMiTBA="
   matrix:
     - LISP=sbcl
 # This configuration fails
@@ -16,6 +18,7 @@ install:
     else
       curl https://raw.githubusercontent.com/luismbo/cl-travis/master/install.sh | sh;
     fi
+  - git clone --depth=1 git://github.com/shamazmazum/codex.git ~/lisp/codex
   - cl -e '(ql-util:without-prompting (ql:add-to-init-file))'
 
 before-script:
@@ -25,3 +28,14 @@ before-script:
 
 script:
   - cl -f $TRAVIS_BUILD_DIR/tests/travis.lisp
+  - cl -l codex -e '(codex:document :wavelet-audio :skip-undocumented t)'
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: "$GITHUB_TOKEN"
+  keep_history: true
+  local_dir: "$TRAVIS_BUILD_DIR/docs/build/wavelet-audio/html"
+  edge: true
+  on:
+    branch: master
