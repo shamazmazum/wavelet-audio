@@ -12,7 +12,7 @@
   ;; This group from Maxima
   #+kcl (lisp::bye)                         ; XXX Does this take an arg?
   #+scl (ext:quit code)                     ; XXX Pretty sure this *does*.
-  #+(or openmcl mcl) (ccl::quit)
+  #+(or openmcl mcl) (ccl:quit code)
   #+abcl (cl-user::quit)
   #+ecl (si:quit)
   ;; This group from <hebi...@math.uni.wroc.pl>
