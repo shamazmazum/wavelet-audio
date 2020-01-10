@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+  Overview &ndash; wavelet-audio
+</title>
+    <link rel="stylesheet" href="static/style.css"/>
+    
+  <link rel="stylesheet" href="static/highlight.css"/>
+  <script src="static/highlight.js"></script>
+  <style>
+   /* Highlight the current top-level TOC item, and hide the TOC of all other items */
+
+   .toc a[data-node="index"] {
+       color: #AD3108;
+   }
+
+   .toc ol {
+       display: none;
+   }
+
+   .toc > ol {
+       display: block;
+   }
+
+   .toc li a[data-node="index"] + ol {
+       display: block;
+   }
+
+   .toc li a[data-node="index"] + ol li {
+       font-size: 16px;
+       margin: 0 10px;
+   }
+
+   .toc li a[active] + ol li:first-child {
+       margin-top: 5px;
+   }
+  </style>
+
+  </head>
+  <body>
+    
+  <h1 class="doc-title">wavelet-audio » Overview</h1>
+  <article id="article" data-section="index">
+    <aside>
+      <ol class="toc"><li><a href="index.html" data-node="index">Overview</a></li><li><a href="using-wavelet-audio.html" data-node="using-wavelet-audio">Using wavelet-audio</a></li><li><a href="api-documentation.html" data-node="api-documentation">API documentation</a></li></ol>
+    </aside>
+    <main class="codex-section">
+      
+    <b>Wavelet-audio</b> is my experimental lossless audio codec based on
+    wavelet compression. It uses biorthogonal (4,2) &quot;B-spline&quot; wavelet
+    described in &quot;Ten lectures on wavelets&quot; book by Ingrid
+    Daubechies. At first it decorrelates audio channels (it supports up
+    to 2 channel by now) using following formula: <code>r' = r-l,
+    l'=(r+l)/2</code>, where <code>l</code> and <code>r</code> are samples in left and right
+    channels. Then wavelet transform of each channel is calculated and
+    each subband is coded with adaptive Rice code (the parameter of
+    Rice code is calculated using running average). Compress ratio is
+    5-7% worse compared to <b>FLAC</b> codec. <b>Wavelet-audio</b> operates
+    on audio blocks (4096 samples by default, which seems to produce
+    results with the best compression). Block sync code is written
+    before each block, so seeking and random access is
+    possible. Metadata blocks are written before any actual audio
+    data. The only metadata block supported by now is
+    <code>streaminfo</code>. It contains basic information about audio stream,
+    e.g. sample rate and bits per sample.
+
+    </main>
+  </article>
+  <footer>
+    <div class="info">
+      Created with <a href="https://github.com/CommonDoc/codex">Codex</a>.
+    </div>
+  </footer>
+  <script>
+   HighlightLisp.highlight_auto();
+  </script>
+
+  </body>
+</html>

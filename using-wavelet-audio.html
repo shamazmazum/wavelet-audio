@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+  Using wavelet-audio &ndash; wavelet-audio
+</title>
+    <link rel="stylesheet" href="static/style.css"/>
+    
+  <link rel="stylesheet" href="static/highlight.css"/>
+  <script src="static/highlight.js"></script>
+  <style>
+   /* Highlight the current top-level TOC item, and hide the TOC of all other items */
+
+   .toc a[data-node="using-wavelet-audio"] {
+       color: #AD3108;
+   }
+
+   .toc ol {
+       display: none;
+   }
+
+   .toc > ol {
+       display: block;
+   }
+
+   .toc li a[data-node="using-wavelet-audio"] + ol {
+       display: block;
+   }
+
+   .toc li a[data-node="using-wavelet-audio"] + ol li {
+       font-size: 16px;
+       margin: 0 10px;
+   }
+
+   .toc li a[active] + ol li:first-child {
+       margin-top: 5px;
+   }
+  </style>
+
+  </head>
+  <body>
+    
+  <h1 class="doc-title">wavelet-audio » Using wavelet-audio</h1>
+  <article id="article" data-section="using-wavelet-audio">
+    <aside>
+      <ol class="toc"><li><a href="index.html" data-node="index">Overview</a></li><li><a href="using-wavelet-audio.html" data-node="using-wavelet-audio">Using wavelet-audio</a></li><li><a href="api-documentation.html" data-node="api-documentation">API documentation</a></li></ol>
+    </aside>
+    <main class="codex-section">
+      
+    Generally you use just two functions: <code>encode-wavelet-audio</code> and
+    <code>decode-wavelet-audio</code> which convert between WAV files and
+    wavelet-audio (.wa) files. There is more advanced API. To encode
+    wavelet-audio stream you need to:
+    <ol><li>Open bit stream for output using <code>trivial-bit-streams</code>.
+              You may wish to use
+              <a href="https://github.com/shamazmazum/trivial-bit-streams">my
+              version</a> of <code>trivial-bit-streams</code>, which is faster.</li><li>Fill metadata block and write wavelet audio header using
+              <code>write-wavelet-audio-header</code>.</li><li>Feed audio data in form of simple-array of 32 bit signed
+              integer values to <code>encode-block</code>.</li><li>Write audio blocks with <code>write-block</code>.</li><li>Flush and close bit stream.</li></ol>
+    To decode audio, you need to use counterparts to functions above:
+    <code>open-wavelet-audio</code>, <code>read-block</code> and <code>decode-block</code>.
+
+    </main>
+  </article>
+  <footer>
+    <div class="info">
+      Created with <a href="https://github.com/CommonDoc/codex">Codex</a>.
+    </div>
+  </footer>
+  <script>
+   HighlightLisp.highlight_auto();
+  </script>
+
+  </body>
+</html>
