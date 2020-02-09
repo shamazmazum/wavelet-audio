@@ -92,13 +92,12 @@ wavelet-audio file with name @cl:param(output-name)."
     (let* ((reader (wav:open-wav input))
            (header (wav:read-wav-header reader))
            (samples-num (wav:samples-num header))
-           (padding-num (- (nth-value 1 (ceiling samples-num *block-size*))))
            (streaminfo (make-instance 'wavelet-audio-streaminfo
                                 :version +current-version+
                                 :samplerate (wav:format-samplerate (car header))
                                 :channels (wav:format-channels-num (car header))
                                 :bps (wav:format-bps (car header))
-                                :samples (+ samples-num padding-num)
+                                :samples samples-num
                                 :block-size *block-size*
                                 :history-size *history-size*)))
       (wav:reader-position-to-audio-data reader header)
@@ -223,11 +222,13 @@ with name @cl:param(output-name)"
                                           :channels channels
                                           :bps bps
                                           :totalsamples samples)
-          (let ((out-buf (make-array (* block-size channels)
-                                     :element-type '(signed-byte 32)
-                                     :initial-element 0)))
-            (loop repeat (/ samples block-size) do
-                 (let ((decoded-bufs (decode-block (read-block s streaminfo))))
-                   (utils:mixchannels out-buf decoded-bufs)
-                   (write-sequence out-buf output))))))))
+          (loop
+             for samples-left downfrom samples to 1 by block-size
+             for samples-in-block = (min block-size samples-left)
+             for decoded-bufs = (decode-block (read-block s streaminfo))
+             with out-buf = (make-array (* block-size channels)
+                                        :element-type '(signed-byte 32))
+             do
+               (utils:mixchannels out-buf decoded-bufs)
+               (write-sequence out-buf output :end (* samples-in-block channels)))))))
   t)
