@@ -4,7 +4,7 @@
 (deftype positive-fixnum () '(integer 1 #.most-positive-fixnum))
 (deftype ub (n) (list 'unsigned-byte n))
 (deftype sb (n) (list 'signed-byte n))
-(deftype rice-parameter () '(integer 0 32))
+(deftype rice-parameter () '(integer 0 24))
 
 (defconstant +metadata-streaminfo+ 0)
 
