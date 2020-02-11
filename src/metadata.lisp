@@ -22,6 +22,7 @@
   (write-octet (streaminfo-channels streaminfo) stream)
   (write-bits (streaminfo-samples streaminfo) 32 stream)
   (write-bits (streaminfo-block-size streaminfo) 16 stream)
+  (write-octet (streaminfo-skip-steps streaminfo) stream)
   (write-octet (streaminfo-history-size streaminfo) stream)
   streaminfo)
 
@@ -48,6 +49,7 @@
         (streaminfo-channels streaminfo) (read-octet stream)
         (streaminfo-samples streaminfo) (read-bits 32 stream)
         (streaminfo-block-size streaminfo) (read-bits 16 stream)
+        (streaminfo-skip-steps streaminfo) (read-octet stream)
         (streaminfo-history-size streaminfo) (read-octet stream))
   streaminfo)
 

@@ -5,6 +5,7 @@
 (deftype ub (n) (list 'unsigned-byte n))
 (deftype sb (n) (list 'signed-byte n))
 (deftype rice-parameter () '(integer 0 24))
+(deftype skip-steps () '(integer 0 16))
 
 (defconstant +metadata-streaminfo+ 0)
 
@@ -48,6 +49,10 @@
                  :accessor streaminfo-block-size
                  :initarg :block-size
                  :documentation "Block size in samples.")
+   (skip-steps   :type skip-steps
+                 :accessor streaminfo-skip-steps
+                 :initarg :skip-steps
+                 :documentation "Number of the last steps of DWT to skip")
    (history-size :type (ub 8)
                  :accessor streaminfo-history-size
                  :initarg :history-size

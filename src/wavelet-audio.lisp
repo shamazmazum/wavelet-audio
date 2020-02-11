@@ -1,12 +1,14 @@
 (in-package :wavelet-audio)
 
 (declaim (type (ub 16) *block-size*)
-         (type (ub 8) *history-size*))
+         (type (ub 8) *history-size*)
+         (type skip-steps *skip-steps*))
 (defparameter *block-size* 4096  "Audio block size in samples.")
 (defparameter *history-size* 50 "History size for adaptive Rice coder")
-(defconstant +current-version+ 2)
+(defparameter *skip-steps* 8 "Number of the last DWT steps to skip")
+(defconstant +current-version+ 3)
 (defconstant +initial-version+ 1)
-(defconstant +max-version+ 2)
+(defconstant +max-version+ 3)
 
 ;; Encoding
 
@@ -53,7 +55,9 @@ be called first to newly created stream."
   (if (= (length (the list channels)) 2)
       (apply #'decorrelate-channels channels))
   (flet ((encode-channel (channel)
-           (dwt! (add-padding channel) :wavelet :cdf-4-2)))
+           (dwt! (add-padding channel)
+                 :wavelet :cdf-4-2
+                 :steps (- *skip-steps*))))
     (make-instance 'wavelet-audio-block
                    :channels
                    (mapcar #'encode-channel channels))))
@@ -72,16 +76,14 @@ be called first to newly created stream."
 
   (dolist (channel (block-channels wa-block))
     (declare (type (simple-array (sb 32)) channel))
-    (let ((history (make-history 2)))
-      (adaptive-write history stream (aref channel 0))
-      (adaptive-write history stream (aref channel 1)))
     (loop
-       for i from 1 below (1- (integer-length *block-size*))
-       for start-idx = (ash 1 i)
-       for end-idx = (ash 1 (1+ i))
+       with start-idx = 0
+       for i from *skip-steps* below (integer-length *block-size*)
+       for end-idx = (ash 1 i)
        for history = (make-history *history-size*) do
          (loop for idx from start-idx below end-idx do
-              (adaptive-write history stream (aref channel idx)))))
+              (adaptive-write history stream (aref channel idx)))
+         (setq start-idx end-idx)))
   (pad-to-byte-alignment 0 stream)
   wa-block)
 
@@ -99,6 +101,7 @@ wavelet-audio file with name @cl:param(output-name)."
                                 :bps (wav:format-bps (car header))
                                 :samples samples-num
                                 :block-size *block-size*
+                                :skip-steps *skip-steps*
                                 :history-size *history-size*)))
       (wav:reader-position-to-audio-data reader header)
 
@@ -157,6 +160,7 @@ wavelet-audio file with name @cl:param(output-name)."
 
   (let* ((channels (streaminfo-channels streaminfo))
          (block-size (streaminfo-block-size streaminfo))
+         (skip-steps (streaminfo-skip-steps streaminfo))
          (history-size (streaminfo-history-size streaminfo))
          (wa-block (make-instance 'wavelet-audio-block
                                   :streaminfo streaminfo
@@ -165,32 +169,36 @@ wavelet-audio file with name @cl:param(output-name)."
                                                              :element-type '(signed-byte 32)))
                                   :number (read-block-number stream))))
     (declare (type (ub 8) channels)
-             (type (ub 16) block-size))
+             (type (ub 16) block-size)
+             (type skip-steps skip-steps))
     (dolist (channel (block-channels wa-block))
       (declare (type (simple-array (sb 32)) channel))
-      (let ((history (make-history 2)))
-        (setf (aref channel 0) (adaptive-read history stream)
-              (aref channel 1) (adaptive-read history stream)))
       (loop
-         for i from 1 below (1- (integer-length block-size))
-         for start-idx = (ash 1 i)
-         for end-idx = (ash 1 (1+ i))
+         with start-idx = 0
+         for i from skip-steps below (integer-length block-size)
+         for end-idx = (ash 1 i)
          for history = (make-history history-size) do
            (loop for idx from start-idx below end-idx do
-                (setf (aref channel idx) (adaptive-read history stream)))))
+                (setf (aref channel idx) (adaptive-read history stream)))
+           (setq start-idx end-idx)))
     (read-to-byte-alignment stream)
     wa-block))
 
 (defun decode-block (wa-block)
   "Decode audio block."
   (declare (optimize (speed 3)))
-  (flet ((decode-channel (channel)
-           (dwt-inverse! channel :wavelet :cdf-4-2)))
-    (let ((decoded-channels (mapcar #'decode-channel
-                                    (block-channels wa-block))))
-      (if (= (length decoded-channels) 2)
-          (apply #'correlate-channels decoded-channels))
-      decoded-channels)))
+  (let ((skip-steps (streaminfo-skip-steps
+                     (block-streaminfo wa-block))))
+    (declare (type skip-steps skip-steps))
+    (flet ((decode-channel (channel)
+             (dwt-inverse! channel
+                           :wavelet :cdf-4-2
+                           :steps (- skip-steps))))
+      (let ((decoded-channels (mapcar #'decode-channel
+                                      (block-channels wa-block))))
+        (if (= (length decoded-channels) 2)
+            (apply #'correlate-channels decoded-channels))
+        decoded-channels))))
 
 (defun open-wavelet-audio (stream)
   "Check if @cl:param(stream) is wavelet audio stream and read metadata."
