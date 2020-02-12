@@ -1,15 +1,5 @@
 (in-package :wavelet-audio)
 
-(declaim (type (ub 16) *block-size*)
-         (type (ub 8) *history-size*)
-         (type skip-steps *skip-steps*))
-(defparameter *block-size* 4096  "Audio block size in samples.")
-(defparameter *history-size* 50 "History size for adaptive Rice coder")
-(defparameter *skip-steps* 8 "Number of the last DWT steps to skip")
-(defconstant +current-version+ 3)
-(defconstant +initial-version+ 1)
-(defconstant +max-version+ 3)
-
 ;; Encoding
 
 (defun decorrelate-channels (chan1 chan2)
@@ -106,14 +96,10 @@ wavelet-audio file with name @cl:param(output-name)."
            (header (wav:read-wav-header reader))
            (samples-num (wav:samples-num header))
            (streaminfo (make-instance 'wavelet-audio-streaminfo
-                                :version +current-version+
                                 :samplerate (wav:format-samplerate (car header))
                                 :channels (wav:format-channels-num (car header))
                                 :bps (wav:format-bps (car header))
-                                :samples samples-num
-                                :block-size *block-size*
-                                :skip-steps *skip-steps*
-                                :history-size *history-size*)))
+                                :samples samples-num)))
       (wav:reader-position-to-audio-data reader header)
 
       (with-open-file (output

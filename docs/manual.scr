@@ -31,9 +31,11 @@
               @link[uri="https://github.com/shamazmazum/trivial-bit-streams"](my
               version) of @c(trivial-bit-streams), which is faster.)
         @item(Fill metadata block and write wavelet audio header using
-              @c(write-wavelet-audio-header).)
-        @item(Feed audio data in form of simple-array of 32 bit signed
-              integer values to @c(encode-block).)
+              @c(write-wavelet-audio-header). You need to specify a number of
+              channels, bits per sample and samplerate in @c(streaminfo) block.)
+        @item(Feed audio data in form of @c(simple-array) of 32 bit signed
+              integer values to @c(encode-block) along with @c(streaminfo)
+              metadata block.)
         @item(Write audio blocks with @c(write-block).)
         @item(Flush and close bit stream.)
     @end(enum)

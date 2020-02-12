@@ -7,7 +7,19 @@
 (deftype rice-parameter () '(integer 0 24))
 (deftype skip-steps () '(integer 0 16))
 
-(defconstant +metadata-streaminfo+ 0)
+(declaim (type (ub 16) *block-size*)
+         (type (ub 8) *history-size*)
+         (type skip-steps *skip-steps*))
+(defparameter *block-size* 4096  "Audio block size in samples.")
+(defparameter *history-size* 50 "History size for adaptive Rice coder")
+(defparameter *skip-steps* 8 "Number of the last DWT steps to skip")
+
+(defconstant +current-version+ 3)
+(defconstant +initial-version+ 1)
+(defconstant +max-version+ 3)
+
+(defconstant +metadata-streaminfo+ 0
+  "Streaminfo id")
 
 (defclass wavelet-audio-metadata ()
   ((type  :type (ub 7)
@@ -28,6 +40,7 @@
   ((version      :type (ub 8)
                  :accessor streaminfo-version
                  :initarg :version
+                 :initform +current-version+
                  :documentation "Stream version.")
    (samplerate   :type (ub 24)
                  :accessor streaminfo-samplerate
@@ -48,17 +61,20 @@
    (block-size   :type (ub 16)
                  :accessor streaminfo-block-size
                  :initarg :block-size
+                 :initform *block-size*
                  :documentation "Block size in samples.")
    (skip-steps   :type skip-steps
                  :accessor streaminfo-skip-steps
                  :initarg :skip-steps
+                 :initform *skip-steps*
                  :documentation "Number of the last steps of DWT to skip")
    (history-size :type (ub 8)
                  :accessor streaminfo-history-size
                  :initarg :history-size
+                 :initform *history-size*
                  :documentation "History size for adaptive Rice coder"))
   (:default-initargs
-   :size 13
+   :size 14
    :type +metadata-streaminfo+)
   (:documentation "Stream info metadata."))
 
