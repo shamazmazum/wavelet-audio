@@ -23,15 +23,16 @@
             chan1 chan2)
   (values chan1 chan2))
 
-(defun add-padding (array)
+(defun add-padding (array block-size)
   "Add zero padding in the end of array to make its size power of two."
-  (declare (optimize (speed 3)))
-  (declare (type (simple-array (sb 32)) array))
+  (declare (optimize (speed 3))
+           (type (ub 16) block-size)
+           (type (simple-array (sb 32)) array))
   (let ((len (length array)))
-    (assert (<= len *block-size*))
-    (let ((pad-elements (- *block-size* len)))
+    (assert (<= len block-size))
+    (let ((pad-elements (- block-size len)))
       (if (zerop pad-elements) array
-          (make-array *block-size*
+          (make-array block-size
                       :element-type '(signed-byte 32)
                       :initial-contents (concatenate 'list array
                                                      (loop repeat pad-elements collect 0)))))))
@@ -48,19 +49,22 @@ be called first to newly created stream."
   (write-metadata stream metadata)
   metadata)
 
-(defun encode-block (channels)
+(defun encode-block (streaminfo channels)
   "Encode channels and return wavelet audio block ready for writing."
   (declare (optimize (speed 3))
            (type list channels))
-  (if (= (length (the list channels)) 2)
-      (apply #'decorrelate-channels channels))
-  (flet ((encode-channel (channel)
-           (dwt! (add-padding channel)
-                 :wavelet :cdf-4-2
-                 :steps (- *skip-steps*))))
-    (make-instance 'wavelet-audio-block
-                   :channels
-                   (mapcar #'encode-channel channels))))
+  (let ((skip-steps (streaminfo-skip-steps streaminfo))
+        (block-size (streaminfo-block-size streaminfo)))
+    (declare (type skip-steps skip-steps))
+    (if (= (length channels) 2)
+        (apply #'decorrelate-channels channels))
+    (flet ((encode-channel (channel)
+             (dwt! (add-padding channel block-size)
+                   :wavelet :cdf-4-2
+                   :steps (- skip-steps))))
+      (make-instance 'wavelet-audio-block
+                     :channels (mapcar #'encode-channel channels)
+                     :streaminfo streaminfo))))
 
 (defun write-block (stream wa-block)
   "Write encoded block @cl:param(wa-block) to the stream
@@ -74,16 +78,23 @@ be called first to newly created stream."
   ;; Write block number
   (write-block-number stream (block-number wa-block))
 
-  (dolist (channel (block-channels wa-block))
-    (declare (type (simple-array (sb 32)) channel))
-    (loop
-       with start-idx = 0
-       for i from *skip-steps* below (integer-length *block-size*)
-       for end-idx = (ash 1 i)
-       for history = (make-history *history-size*) do
-         (loop for idx from start-idx below end-idx do
-              (adaptive-write history stream (aref channel idx)))
-         (setq start-idx end-idx)))
+  (let* ((streaminfo (block-streaminfo wa-block))
+         (skip-steps (streaminfo-skip-steps streaminfo))
+         (block-size (streaminfo-block-size streaminfo))
+         (history-size (streaminfo-history-size streaminfo)))
+    (declare (type skip-steps skip-steps)
+             (type (ub 8) history-size)
+             (type (ub 16) block-size))
+    (dolist (channel (block-channels wa-block))
+      (declare (type (simple-array (sb 32)) channel))
+      (loop
+         with start-idx = 0
+         for i from skip-steps below (integer-length block-size)
+         for end-idx = (ash 1 i)
+         for history = (make-history history-size) do
+           (loop for idx from start-idx below end-idx do
+                (adaptive-write history stream (aref channel idx)))
+           (setq start-idx end-idx))))
   (pad-to-byte-alignment 0 stream)
   wa-block)
 
@@ -121,7 +132,8 @@ wavelet-audio file with name @cl:param(output-name)."
              for data = (wav:read-wav-data reader (car header)
                                            (min *block-size* (- samples-num data-read))
                                            :decompose t)
-             for wa-block = (encode-block data) do
+             for wa-block = (encode-block streaminfo data)
+             do
                (setf (block-number wa-block) block-count)
                (write-block s wa-block))
           (flush-bit-output-stream s)))))
