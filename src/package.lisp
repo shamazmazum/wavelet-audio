@@ -28,4 +28,5 @@
            #:seek-sample
 
            #:*block-size*
-           #:*history-size*))
+           #:*history-size*
+           #:*skip-steps*))
