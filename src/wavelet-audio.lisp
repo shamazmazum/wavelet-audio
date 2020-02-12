@@ -40,7 +40,8 @@ be called first to newly created stream."
   metadata)
 
 (defun encode-block (streaminfo channels)
-  "Encode channels and return wavelet audio block ready for writing."
+  "Encode channels and return wavelet audio block ready for
+writing. NB: content of @c(channels) is destructively modified."
   (declare (optimize (speed 3))
            (type list channels))
   (let ((skip-steps (streaminfo-skip-steps streaminfo))

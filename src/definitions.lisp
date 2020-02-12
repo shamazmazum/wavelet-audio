@@ -96,6 +96,7 @@
    (number     :type non-negative-fixnum
                :accessor block-number
                :initarg :number
+               :initform 0
                :documentation "Number of block in the stream."))
   (:documentation "Audio block."))
 
