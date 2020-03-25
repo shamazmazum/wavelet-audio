@@ -21,11 +21,6 @@ install:
   - git clone --depth=1 git://github.com/shamazmazum/codex.git ~/lisp/codex
   - cl -e '(ql-util:without-prompting (ql:add-to-init-file))'
 
-before-script:
-  - mkdir lisp
-  - pushd lisp && git clone git://github.com/shamazmazum/cl-wavelets.git && popd
-  - pushd lisp && git clone git://github.com/shamazmazum/trivial-bit-streams.git && popd
-
 script:
   - cl -f $TRAVIS_BUILD_DIR/tests/travis.lisp
   - cl -l codex -e '(codex:document :wavelet-audio :skip-undocumented t)'
