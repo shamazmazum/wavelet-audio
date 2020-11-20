@@ -1,6 +1,6 @@
 Wavelet-audio
 -------------
-[![Build Status](https://travis-ci.com/shamazmazum/wavelet-audio.svg?branch=master)](https://travis-ci.com/shamazmazum/wavelet-audio)
+[![Build Status](https://api.cirrus-ci.com/github/shamazmazum/wavelet-audio.svg)](https://cirrus-ci.com/github/shamazmazum/wavelet-audio)
 
 This package is a proof of concept of wavelet transform-based lossless
 audio codec. **wavelet-audio** uses  (4,2) B-spline wavelet and Rice
