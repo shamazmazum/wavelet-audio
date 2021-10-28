@@ -10,6 +10,7 @@ task:
     - pkg install -y curl git
   install_script:
     - curl -L https://raw.githubusercontent.com/shamazmazum/cl-cirrus/master/install.sh | sh
+    - cl -e '(ql-dist:install-dist "http://dist.ultralisp.org/" :prompt nil)'
     - git clone --depth=1 git://github.com/shamazmazum/codex.git ~/lisp/codex
     - git clone --depth=1 git://github.com/shamazmazum/docparser.git ~/lisp/docparser
   script:
