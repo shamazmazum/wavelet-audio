@@ -223,12 +223,12 @@ with name @cl:param(output-name)"
              (channels (streaminfo-channels streaminfo))
              (samples (streaminfo-samples streaminfo))
              (block-size (streaminfo-block-size streaminfo)))
-        (utils:with-output-to-wav (output output-name
-                                          :supersede t
-                                          :samplerate samplerate
-                                          :channels channels
-                                          :bps bps
-                                          :totalsamples samples)
+        (wav:with-output-to-wav (output output-name
+                                        :supersede t
+                                        :samplerate samplerate
+                                        :channels channels
+                                        :bps bps
+                                        :totalsamples samples)
           (loop
              for samples-left downfrom samples to 1 by block-size
              for samples-in-block = (min block-size samples-left)
