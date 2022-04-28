@@ -236,6 +236,6 @@ with name @cl:param(output-name)"
              with out-buf = (make-array (* block-size channels)
                                         :element-type '(signed-byte 32))
              do
-               (utils:mixchannels out-buf decoded-bufs)
+               (core:mixchannels out-buf decoded-bufs)
                (write-sequence out-buf output :end (* samples-in-block channels)))))))
   t)

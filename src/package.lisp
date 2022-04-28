@@ -1,5 +1,7 @@
 (defpackage wavelet-audio
   (:use #:cl #:cl-wavelets #:trivial-bit-streams)
+  (:local-nicknames (:wav  :easy-audio.wav)
+                    (:core :easy-audio.core))
   (:export #:encode-wavelet-audio
            #:decode-wavelet-audio
            #:open-wavelet-audio
