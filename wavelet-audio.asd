@@ -4,13 +4,15 @@
   :author "Vasily Postnicov <shamaz.mazum@gmail.com>"
   :description "Proof of concept for lossless audio compressor"
   :licence "2-clause BSD"
-  :components ((:file "src/package")
-               (:file "src/definitions" :depends-on ("src/package"))
-               (:file "src/history" :depends-on ("src/package"))
-               (:file "src/io" :depends-on ("src/package"))
-               (:file "src/metadata" :depends-on ("src/package"))
-               (:file "src/wavelet-audio" :depends-on ("src/package"))
-               (:file "src/seek" :depends-on ("src/package")))
+  :pathname "src/"
+  :serial t
+  :components ((:file "package")
+               (:file "definitions")
+               (:file "history")
+               (:file "io")
+               (:file "metadata")
+               (:file "wavelet-audio")
+               (:file "seek"))
   :depends-on (:easy-audio :trivial-bit-streams :cl-wavelets)
   :in-order-to ((test-op (load-op "wavelet-audio/tests")))
   :perform (test-op (op system)
@@ -25,6 +27,7 @@
   :version "0.1"
   :author "Vasily Postnicov <shamaz.mazum@gmail.com>"
   :licence "2-clause BSD"
-  :components ((:file "tests/package")
-               (:file "tests/tests" :depends-on ("tests/package")))
+  :pathname "tests/"
+  :components ((:file "package")
+               (:file "tests" :depends-on ("package")))
   :depends-on (:wavelet-audio :fiveam :flexi-streams))
