@@ -11,8 +11,5 @@ task:
   install_script:
     - curl -L https://raw.githubusercontent.com/shamazmazum/cl-cirrus/master/install.sh | sh
     - cl -e '(ql-dist:install-dist "http://dist.ultralisp.org/" :prompt nil)'
-    - git clone --depth=1 https://github.com/shamazmazum/codex.git ~/lisp/codex
-    - git clone --depth=1 https://github.com/shamazmazum/docparser.git ~/lisp/docparser
   script:
     - cl -f $CIRRUS_WORKING_DIR/tests/travis.lisp
-    # - cl -l codex -e '(codex:document :wavelet-audio :skip-undocumented t)'
