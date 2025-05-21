@@ -74,7 +74,5 @@
         @cl:doc(variable *block-size*)
         @cl:doc(variable *history-size*)
         @cl:doc(variable *skip-steps*)
-        @cl:doc(variable *min-rice-parameter*)
-        @cl:doc(variable *max-rice-parameter*)
     )
 @end(section)
