@@ -1,12 +1,15 @@
-name: CI tests
+name: Documentation
 
 on: [push, pull_request]
+#on:
+#  push:
+#    tags: [v*]
 
 jobs:
-  test_and_docs:
+  docs:
     runs-on: ubuntu-latest
     env:
-      LISP: sbcl
+      LISP: sbcl-bin
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -19,8 +22,13 @@ jobs:
       - name: Set Path
         run: |
           echo "${HOME}/.roswell/bin" >> $GITHUB_PATH
-      - name: Run tests
+      - name: Build documentation
         run: |
           cd $GITHUB_WORKSPACE
           qlot install
-          qlot exec ros -l tests/travis.lisp
+          qlot exec ros -s codex -e '(codex:document :wavelet-audio :skip-undocumented t)'
+      - name: Deploy to GH pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/wavelet-audio/html
