@@ -1,6 +1,5 @@
 Wavelet-audio
 -------------
-[![Build Status](https://api.cirrus-ci.com/github/shamazmazum/wavelet-audio.svg)](https://cirrus-ci.com/github/shamazmazum/wavelet-audio)
 ![CI](https://github.com/shamazmazum/wavelet-audio/workflows/CI/badge.svg)
 
 This package is a proof of concept of wavelet transform-based lossless
