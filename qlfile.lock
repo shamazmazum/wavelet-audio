@@ -1,0 +1,24 @@
+("quicklisp" .
+ (:class qlot/source/dist:source-dist
+  :initargs (:distribution "https://beta.quicklisp.org/dist/quicklisp.txt" :%version :latest)
+  :version "2024-10-12"))
+("trivial-bit-streams" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "shamazmazum/trivial-bit-streams" :ref nil :branch nil :tag nil)
+  :version "github-05fd5ae6b4d6c42121ad4f8dada16d71412aa8ae"))
+("easy-audio" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "shamazmazum/easy-audio" :ref nil :branch nil :tag nil)
+  :version "github-661c67dd06890e9324ca66f5c29007634b7a89c3"))
+("shamazmazum-cl-wavelets" .
+ (:class qlot/source/ultralisp:source-ultralisp
+  :initargs (:%version :latest)
+  :version "ultralisp-20250521135500"))
+("fiveam" .
+ (:class qlot/source/ql:source-ql
+  :initargs (:%version :latest)
+  :version "ql-2024-10-12"))
+("flexi-streams" .
+ (:class qlot/source/ql:source-ql
+  :initargs (:%version :latest)
+  :version "ql-2024-10-12"))
