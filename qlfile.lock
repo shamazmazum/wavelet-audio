@@ -22,3 +22,11 @@
  (:class qlot/source/ql:source-ql
   :initargs (:%version :latest)
   :version "ql-2024-10-12"))
+("codex" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "shamazmazum/codex" :ref nil :branch nil :tag nil)
+  :version "github-4fb740a6566caae70e7cd6111535edd91a7ca18e"))
+("docparser" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "shamazmazum/docparser" :ref nil :branch nil :tag nil)
+  :version "github-93a327d9e1c990fc6ec13251ffae119f3c168053"))
