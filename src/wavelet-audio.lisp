@@ -221,21 +221,13 @@ with name @cl:param(output-name)"
              (samplerate (streaminfo-samplerate streaminfo))
              (bps (streaminfo-bps streaminfo))
              (channels (streaminfo-channels streaminfo))
-             (samples (streaminfo-samples streaminfo))
-             (block-size (streaminfo-block-size streaminfo)))
+             (samples (streaminfo-samples streaminfo)))
         (wav:with-output-to-wav (output output-name
                                         :supersede t
                                         :samplerate samplerate
                                         :channels channels
                                         :bps bps
                                         :totalsamples samples)
-          (loop
-             for samples-left downfrom samples to 1 by block-size
-             for samples-in-block = (min block-size samples-left)
-             for decoded-bufs = (decode-block (read-block s streaminfo))
-             with out-buf = (make-array (* block-size channels)
-                                        :element-type '(signed-byte 32))
-             do
-               (core:mixchannels out-buf decoded-bufs)
-               (write-sequence out-buf output :end (* samples-in-block channels)))))))
+          (loop for decoded-bufs = (decode-block (read-block s streaminfo)) do
+                (write-sequence (core:interleave-channels decoded-bufs) output))))))
   t)
