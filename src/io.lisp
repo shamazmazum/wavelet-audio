@@ -1,59 +1,6 @@
 (in-package :wavelet-audio)
 (declaim (optimize (speed 3)))
 
-;; Writing
-
-;; Golomb coding functions
-(defun write-golomb-unsigned (stream residual m)
-  (declare (type (unsigned-byte 32) residual m))
-  (multiple-value-bind (quotient rem)
-      (floor residual m)
-    (loop repeat quotient do (write-bit 1 stream))
-    (write-bit 0 stream)
-    (let* ((bits (integer-length m))
-           (threshold (- (ash 1 bits) m)))
-      (declare (type positive-fixnum bits)
-               (type non-negative-fixnum threshold))
-      (if (< rem threshold)
-          (write-bits rem (1- bits) stream)
-          (let ((rest (+ rem threshold)))
-            (write-bits (ash rest -1) (1- bits) stream)
-            (write-bit (logand rest 1) stream))))))
-
-(defun write-golomb (stream residual m)
-  (declare (type (signed-byte 32) residual))
-  (write-golomb-unsigned
-   stream
-   (+ (* 2 (abs residual))
-      (if (< residual 0) 1 0))
-   m))
-
-(defun read-golomb-unsigned (stream m)
-  (declare (type (unsigned-byte 32) m))
-  (let* ((bits (integer-length m))
-         (threshold (- (ash 1 bits) m)))
-    (declare (type positive-fixnum bits)
-             (type non-negative-fixnum threshold))
-    (let ((quotient
-           (loop
-              for bit = (read-bit stream)
-              until (zerop bit)
-              sum 1 fixnum))
-          (rem (read-bits (1- bits) stream)))
-      (declare (type (ub 32) quotient rem))
-      (+ (* quotient m)
-         (if (< rem threshold) rem
-             (-
-              (logior (ash rem 1) (read-bit stream))
-              threshold))))))
-
-(defun read-golomb (stream m)
-  (let* ((unsigned (read-golomb-unsigned stream m))
-         (res (ash unsigned -1)))
-    (declare (type (ub 32) unsigned res))
-    (if (zerop (logand unsigned 1))
-        res (- res))))
-
 ;; Rice coding functions
 (defun write-rice-unsigned (stream residual m)
   "Write unsigned value @cl:param(residual) into stream @c(stream)

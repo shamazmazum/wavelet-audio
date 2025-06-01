@@ -35,21 +35,6 @@
                            (loop repeat (length sequence) collect
                                 (wavelet-audio::read-rice stream 10))))))))))
 
-(test golomb-code
-  "Test Golomb coder"
-  (let ((sequence (loop for x from -30 to 30 collect x)))
-    (loop for p from 1 below 15 do
-         (let ((output
-                (with-output-to-sequence (octet-stream)
-                  (with-bit-output-stream (stream :callback (make-stream-output-callback octet-stream))
-                    (loop for x in sequence do
-                         (wavelet-audio::write-golomb stream x p))))))
-           (is (equalp sequence
-                       (with-input-from-sequence (octet-stream output)
-                         (with-bit-input-stream (stream :callback (make-stream-input-callback octet-stream))
-                           (loop repeat (length sequence) collect
-                                (wavelet-audio::read-golomb stream p))))))))))
-
 (test history
   "Test history tracking"
   (let ((history (wavelet-audio::make-history 5)))
