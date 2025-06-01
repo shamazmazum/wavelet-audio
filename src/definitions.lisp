@@ -2,8 +2,10 @@
 
 (deftype non-negative-fixnum () '(integer 0 #.most-positive-fixnum))
 (deftype positive-fixnum () '(integer 1 #.most-positive-fixnum))
-(deftype ub (n) (list 'unsigned-byte n))
-(deftype sb (n) (list 'signed-byte n))
+(deftype ub (n) `(unsigned-byte ,n))
+(deftype sb (n) `(signed-byte ,n))
+(deftype sa-ub (n) `(simple-array (ub ,n) (*)))
+(deftype sa-sb (n) `(simple-array (sb ,n) (*)))
 (deftype rice-parameter () '(integer 0 24))
 (deftype skip-steps () '(integer 0 16))
 

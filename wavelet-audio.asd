@@ -13,7 +13,7 @@
                (:file "metadata")
                (:file "wavelet-audio")
                (:file "seek"))
-  :depends-on (:easy-audio :trivial-bit-streams :cl-wavelets)
+  :depends-on (:easy-audio :trivial-bit-streams :cl-wavelets :serapeum)
   :in-order-to ((test-op (load-op "wavelet-audio/tests")))
   :perform (test-op (op system)
                     (declare (ignore op system))

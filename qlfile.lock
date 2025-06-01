@@ -30,3 +30,7 @@
  (:class qlot/source/github:source-github
   :initargs (:repos "shamazmazum/docparser" :ref nil :branch nil :tag nil)
   :version "github-93a327d9e1c990fc6ec13251ffae119f3c168053"))
+("serapeum" .
+ (:class qlot/source/ql:source-ql
+  :initargs (:%version :latest)
+  :version "ql-2024-10-12"))
