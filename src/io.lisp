@@ -33,8 +33,8 @@ using Rice coding with parameter @cl:param(m). If @cl:param(stream) is
   "Compactly code block number @cl:param(block-number) into stream
 @cl:param(stream)."
   (declare (optimize (speed 3)))
-  (labels ((%go (number)
-             (let ((bits (logand #x7f number)))
+  (labels ((%go (block-number)
+             (let ((bits (logand #x7f block-number)))
                (cond
                  ((/= block-number bits)
                   (write-octet (logior #x80 bits) stream)
