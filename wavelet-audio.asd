@@ -31,3 +31,9 @@
   :components ((:file "package")
                (:file "tests" :depends-on ("package")))
   :depends-on (:wavelet-audio :fiveam :flexi-streams))
+
+;; Bogus system for qlot
+(defsystem :wavelet-audio/docs
+  :name :wavelet-audio/docs
+  :author "Vasily Postnicov <shamaz.mazum@gmail.com>"
+  :depends-on (:wavelet-audio :codex))

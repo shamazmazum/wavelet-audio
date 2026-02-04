@@ -34,3 +34,7 @@
  (:class qlot/source/ql:source-ql
   :initargs (:%version :latest)
   :version "ql-2024-10-12"))
+("named-readtables" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "melisgl/named-readtables" :ref nil :branch nil :tag nil)
+  :version "github-aa6dab55abff3cca26b976d9a105c2006ca0c3b6"))
