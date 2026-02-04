@@ -1,6 +1,6 @@
 (defun do-all()
   (handler-case
-      (ql:quickload :wavelet-audio/tests)
+      (asdf:load-system :wavelet-audio/tests)
     (asdf:compile-file-error ()
       (uiop:quit 1)))
   (uiop:quit
