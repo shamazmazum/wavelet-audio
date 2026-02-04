@@ -4,7 +4,6 @@
   (write-bits (metadata-type metadata) 7 stream)
   (write-bit (if (metadata-last-p metadata) 1 0) stream)
   (write-bits (metadata-size metadata) 32 stream)
-  (print (+ (length stream) (sin stream)))
   metadata)
 
 (defmethod read-metadata-header (stream (metadata wavelet-audio-metadata))
