@@ -1,5 +1,4 @@
 github shamazmazum/trivial-bit-streams
-github shamazmazum/easy-audio
 ultralisp shamazmazum-cl-wavelets
 ql fiveam
 ql flexi-streams
@@ -7,3 +6,5 @@ github shamazmazum/codex
 github shamazmazum/docparser
 ql serapeum
 github melisgl/named-readtables
+github shamazmazum/easy-audio :tag v1.3.1
+github shamazmazum/stateless-iterators :tag v0.2

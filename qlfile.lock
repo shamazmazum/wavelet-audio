@@ -6,10 +6,6 @@
  (:class qlot/source/github:source-github
   :initargs (:repos "shamazmazum/trivial-bit-streams" :ref nil :branch nil :tag nil)
   :version "github-05fd5ae6b4d6c42121ad4f8dada16d71412aa8ae"))
-("easy-audio" .
- (:class qlot/source/github:source-github
-  :initargs (:repos "shamazmazum/easy-audio" :ref nil :branch nil :tag nil)
-  :version "github-661c67dd06890e9324ca66f5c29007634b7a89c3"))
 ("shamazmazum-cl-wavelets" .
  (:class qlot/source/ultralisp:source-ultralisp
   :initargs (:%version :latest)
@@ -38,3 +34,11 @@
  (:class qlot/source/github:source-github
   :initargs (:repos "melisgl/named-readtables" :ref nil :branch nil :tag nil)
   :version "github-aa6dab55abff3cca26b976d9a105c2006ca0c3b6"))
+("easy-audio" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "shamazmazum/easy-audio" :ref nil :branch nil :tag "v1.3.1")
+  :version "github-457ac96ae3cdf9d79ab476e78093eb146c3c713c"))
+("stateless-iterators" .
+ (:class qlot/source/github:source-github
+  :initargs (:repos "shamazmazum/stateless-iterators" :ref nil :branch nil :tag "v0.2")
+  :version "github-5d19b6cfa5756078d892d8c8a5b306db0639bd15"))
